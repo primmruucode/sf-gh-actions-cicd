@@ -27,4 +27,4 @@ jobs:
 
       - name: Deploy to Sandbox
         run: |
-          sfdx force:source:deploy --sourcepath force-app/ --targetusername devjwt
+          sfdx force:source:deploy --manifest=manifest/package.xml --testlevel=RunLocalTests -u kourim2570-v2az@force.com
