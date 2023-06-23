@@ -19,9 +19,12 @@ jobs:
           sudo ./sfdx-cli/install
 
       - name: Authenticate with Salesforce
-        run: |
-          echo ${{ secrets.SALESFORCE_USERNAME }} | sfdx force:auth:jwt:grant --clientid ${{ secrets.SALESFORCE_CONSUMER_KEY }} --jwtkeyfile key/server.key --username ${{ secrets.SALESFORCE_USERNAME }} --setdefaultdevhubusername --setalias sandbox
+        run: | 
+          sfdx force:auth:jwt:grant --clientid=3MVG9CecKwYCDceSQnAaMpMKFXdGV.At_wliCAV4ShAOuRv0lcGYU9A5Qz1T9sMwKRz8BjssjohhoYBJh6XN9 --jwtkeyfile=server.key --username=kourim2570-v2az@force.com --setdefaultdevhubusername --setalias devjwt
+          
+          
+       
 
       - name: Deploy to Sandbox
         run: |
-          sfdx force:source:deploy --sourcepath force-app/ --targetusername sandbox
+          sfdx force:source:deploy --sourcepath force-app/ --targetusername devjwt
