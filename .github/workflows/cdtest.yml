@@ -17,7 +17,7 @@ jobs:
           mkdir sfdx-cli
           tar xJf sfdx-cli-linux-x64.tar.xz -C sfdx-cli --strip-components 1
           sudo ./sfdx-cli/install
-
+# sfdx force:source:deploy --manifest=manifest/package.xml --testlevel=RunLocalTests -u kourim2570-v2az@force.com
       - name: Authenticate with Salesforce
         run: | 
           sfdx force:auth:jwt:grant --clientid=3MVG9CecKwYCDceSQnAaMpMKFXdGV.At_wliCAV4ShAOuRv0lcGYU9A5Qz1T9sMwKRz8BjssjohhoYBJh6XN9 --jwtkeyfile=server.key --username=kourim2570-v2az@force.com --setdefaultdevhubusername --setalias devjwt
@@ -27,4 +27,4 @@ jobs:
 
       - name: Deploy to Sandbox
         run: |
-          sfdx force:source:deploy --manifest=manifest/package.xml --testlevel=RunLocalTests -u kourim2570-v2az@force.com
+          sfdx force:source:deploy -x manifest/package.xml 
