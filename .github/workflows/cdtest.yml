@@ -27,4 +27,4 @@ jobs:
 
       - name: Deploy to Sandbox
         run: |
-          sfdx force:source:deploy -x manifest/package.xml 
+          sfdx force:source:deploy -x manifest/package.xml -u kourim2570-v2az@force.com
