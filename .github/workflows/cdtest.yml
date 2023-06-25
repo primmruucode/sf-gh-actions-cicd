@@ -31,4 +31,4 @@ jobs:
 # force:source:deploy,--manifest,manifest/package.xml,--targetusername,DevHub_Instance,--wait,30,--json,--ignorewarnings,--testlevel,RunLocalTests
       - name: Deploy to Sandbox
         run: |
-          sfdx force:source:deploy -x manifest/package.xml --targetusername DevHub_Instance --json --testlevel RunLocalTests --ignorewarnings
+          sfdx force:source:deploy -x manifest/package.xml --json --testlevel RunLocalTests --ignorewarnings -u mil@acn.san
