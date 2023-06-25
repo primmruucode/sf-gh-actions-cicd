@@ -8,6 +8,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - uses: actions/setup-node@v2
+        with:
+            node-version: '14'
+            
       - name: Checkout code
         uses: actions/checkout@v2
 
@@ -20,7 +24,7 @@ jobs:
 # sfdx force:source:deploy --manifest=manifest/package.xml --testlevel=RunLocalTests -u kourim2570-v2az@force.com
       - name: Authenticate with Salesforce
         run: | 
-          sfdx force:auth:jwt:grant --clientid=3MVG9CecKwYCDceSQnAaMpMKFXdGV.At_wliCAV4ShAOuRv0lcGYU9A5Qz1T9sMwKRz8BjssjohhoYBJh6XN9 --jwtkeyfile=server.key --username=kourim2570-v2az@force.com --setdefaultdevhubusername --setalias devjwt
+          sfdx force:auth:jwt:grant --clientid=3MVG9CecKwYCDceT4amtk6cADBYCRO86z4dr7QiZtOTHZcDJQdXGpDZk3SQliZFytqQx.Z6tzHdBfl_5fiFdm --jwtkeyfile=server.key --username=mil@acn.san --setdefaultdevhubusername --setalias devjwt
           
 
        
