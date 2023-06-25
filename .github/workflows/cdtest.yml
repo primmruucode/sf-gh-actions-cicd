@@ -22,7 +22,12 @@ jobs:
         run: | 
           sfdx force:auth:jwt:grant --clientid=3MVG9CecKwYCDceSQnAaMpMKFXdGV.At_wliCAV4ShAOuRv0lcGYU9A5Qz1T9sMwKRz8BjssjohhoYBJh6XN9 --jwtkeyfile=server.key --username=kourim2570-v2az@force.com --setdefaultdevhubusername --setalias devjwt
           
-          
+      - name: "Deploy the Package in Sandbox"
+        uses: engPabloMartinez/sf-deploy-github-actions/validateOrDeploy@master
+        with:
+          package_path: manifest/package.xml
+          deploy: "true"
+          test_level: "RunLocalTests"     
        
 
       - name: Deploy to Sandbox
