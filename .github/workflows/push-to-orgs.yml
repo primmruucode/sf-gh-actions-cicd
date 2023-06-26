@@ -171,17 +171,17 @@ jobs:
               if: ${{ env.APEX_TESTS != 'all' }}
               run: |
                   echo ${{env.APEX_TESTS}}
-                  sfdx force:source:deploy -p "changed-sources/force-app" --testlevel RunSpecifiedTests --runtests ${{env.APEX_TESTS}} --json
+                  sfdx force:source:deploy -p "changed-sources/force-app" --testlevel RunSpecifiedTests --runtests ${{env.APEX_TESTS}} --json -u ${{ secrets.SALESFORCE_USERNAME }}
 
             # If the env variable equals all, we run all tests
             - name: 'Deploying to development org(s) - run all tests in repo'
               if: ${{ env.APEX_TESTS == 'all' }}
               run: |
                   echo ${{env.APEX_TESTS_ALL}}
-                  sfdx force:source:deploy -p "changed-sources/force-app" --testlevel RunSpecifiedTests --runtests ${{env.APEX_TESTS_ALL}} --json
+                  sfdx force:source:deploy -p "changed-sources/force-app" --testlevel RunSpecifiedTests --runtests ${{env.APEX_TESTS_ALL}} --json -u ${{ secrets.SALESFORCE_USERNAME }}
 
             - name: 'Deploy destructive changes (if any)'
-              run: sfdx force:mdapi:deploy -d "changed-sources/destructiveChanges" --checkonly --ignorewarnings 
+              run: sfdx force:mdapi:deploy -d "changed-sources/destructiveChanges" --checkonly --ignorewarnings -u ${{ secrets.SALESFORCE_USERNAME }}
 
             ###STAGING ORG:
             - name: 'Authenticate to staging org'
