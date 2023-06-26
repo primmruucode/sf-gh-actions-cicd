@@ -3,6 +3,7 @@ name: Deploy to Production
 
 # Definition when the workflow should run
 on:
+    workflow_dispatch:    
     pull_request:
       branches: [ master ]
       types:
@@ -48,10 +49,10 @@ jobs:
                     echo "APEX_TESTS_ALL=$ALLTESTS" >> $GITHUB_ENV
 
             # Store secret for production org
-            - name: 'Populate auth file with SFDX_URL secret of the production org'
-              shell: bash
-              run: |
-                  echo ${{ secrets.SFDX_PRODUCTION_URL}} > ./SFDX_PRODUCTION_URL.txt
+           # - name: 'Populate auth file with SFDX_URL secret of the production org'
+            #  shell: bash
+             # run: |
+              #    echo ${{ secrets.SFDX_PRODUCTION_URL}} > ./SFDX_PRODUCTION_URL.txt
 
             - name: 'Create delta packages for new, modified or deleted metadata'
               run: | 
@@ -59,8 +60,16 @@ jobs:
                   sfdx sgd:source:delta --to "HEAD" --from "HEAD^" --output changed-sources/ --generate-delta --source force-app/
 
             # Authenticate to org
-            - name: 'Authenticate to Production Org'
-              run: sfdx auth:sfdxurl:store -f ./SFDX_PRODUCTION_URL.txt -s -a production
+           # - name: 'Authenticate to Production Org'
+           #   run: sfdx auth:sfdxurl:store -f ./SFDX_PRODUCTION_URL.txt -s -a production
+            - name: echo key
+              run: echo "${{ secrets.SALESFORCE_SERVER_KEY }}" > server.key
+        
+            - name: Authenticate with Salesforce
+              run: | 
+                 sfdx force:auth:jwt:grant --clientid=${{ secrets.SALESFORCE_CONSUMER_KEY }} --jwtkeyfile=server.key --username=${{ secrets.SALESFORCE_USERNAME }} --setdefaultdevhubusername --setalias devjwt
+          
+
 
             - name: 'Deploying to production org(s) - run all tests in repo'
               run:  | 
