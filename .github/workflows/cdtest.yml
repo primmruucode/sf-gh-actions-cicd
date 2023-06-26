@@ -23,7 +23,7 @@ jobs:
           sudo ./sfdx-cli/install
 # sfdx force:source:deploy --manifest=manifest/package.xml --testlevel=RunLocalTests -u kourim2570-v2az@force.com
       - name: echo key
-        run: echo "${{ secret.SALESFORCE_SERVER_KEY }}" > server.key
+        run: echo "${{ secrets.SALESFORCE_SERVER_KEY }}" > server.key
         
       - name: Authenticate with Salesforce
         run: | 
