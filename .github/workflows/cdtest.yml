@@ -22,6 +22,9 @@ jobs:
           tar xJf sfdx-cli-linux-x64.tar.xz -C sfdx-cli --strip-components 1
           sudo ./sfdx-cli/install
 # sfdx force:source:deploy --manifest=manifest/package.xml --testlevel=RunLocalTests -u kourim2570-v2az@force.com
+      - name: echo key
+        run: echo "${{ secret.SALESFORCE_SERVER_KEY }}" > server.key
+        
       - name: Authenticate with Salesforce
         run: | 
           sfdx force:auth:jwt:grant --clientid=3MVG9CecKwYCDceT4amtk6cADBYCRO86z4dr7QiZtOTHZcDJQdXGpDZk3SQliZFytqQx.Z6tzHdBfl_5fiFdm --jwtkeyfile=server.key --username=mil@acn.san --setdefaultdevhubusername --setalias devjwt
