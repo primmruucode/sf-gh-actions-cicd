@@ -17,7 +17,7 @@ on:
       # when changing non-salesforce files (like this yml file).
       paths:
         - 'force-app/**'
-            
+    workflow_dispatch:        
 
 # Jobs to be executed when the above conditions are met
 jobs:
@@ -125,11 +125,11 @@ jobs:
 
             # The URL is stored in the Github Secret named SFDX_DEVELOPMENT_URL
             # so here we store the URL into a text file
-            - name: 'Populate auth file with SFDX_URL secret of development and staging orgs'
-              shell: bash
-              run: |
-                  echo ${{ secrets.SFDX_DEVELOPMENT_URL}} > ./SFDX_DEVELOPMENT_URL.txt
-                  echo ${{ secrets.SFDX_STAGING_URL}} > ./SFDX_STAGING_URL.txt
+            #- name: 'Populate auth file with SFDX_URL secret of development and staging orgs'
+             # shell: bash
+              #run: |
+               #   echo ${{ secrets.SFDX_DEVELOPMENT_URL}} > ./SFDX_DEVELOPMENT_URL.txt
+                #  echo ${{ secrets.SFDX_STAGING_URL}} > ./SFDX_STAGING_URL.txt
 
             # We use SFDX Git Delta to create a directory with only the metadata that has changed.
             # this allows us to deploy only those changes, as opposed to deploying the entire branch. 
@@ -162,9 +162,11 @@ jobs:
             # tests that can be run
 
             ###DEV ORG:
-            - name: 'Authenticate to development org'
-              run: sfdx auth:sfdxurl:store -f ./SFDX_DEVELOPMENT_URL.txt -s -a development
-
+           # - name: 'Authenticate to development org'
+            #  run: sfdx auth:sfdxurl:store -f ./SFDX_DEVELOPMENT_URL.txt -s -a development
+            - name: echo key
+              run: echo "${{ secrets.SALESFORCE_SERVER_KEY }}" > server.key
+              
             - name: 'Deploying to development org(s) - run specified tests in PR'
               if: ${{ env.APEX_TESTS != 'all' }}
               run: |
