@@ -35,3 +35,10 @@ jobs:
       - name: Deploy to Sandbox
         run: |
           sfdx force:source:deploy -x manifest/package.xml --json --testlevel RunLocalTests --ignorewarnings -u ${{ secrets.SALESFORCE_USERNAME }}
+
+            # Trigger packaging workflow if needed
+      - name: 'Trigger packaging workflow if needed'
+        uses: peter-evans/repository-dispatch@v2
+        with:
+            event-type: start-packaging
+            client-payload: '{ "ref": "${{ github.ref }}", "sha": "${{ github.sha }}" }'
