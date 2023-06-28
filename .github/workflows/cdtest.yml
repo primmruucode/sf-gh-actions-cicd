@@ -22,18 +22,6 @@ jobs:
           tar xJf sfdx-cli-linux-x64.tar.xz -C sfdx-cli --strip-components 1
           sudo ./sfdx-cli/install
 # sfdx force:source:deploy --manifest=manifest/package.xml --testlevel=RunLocalTests -u kourim2570-v2az@force.com
-      - name: 'Installing sfdx git delta'
-        run: | 
-            echo y | sfdx plugins:install sfdx-git-delta
-            sfdx plugins 
-
-      # Install java
-      - name: 'Installing java'
-        run: sudo apt-get install openjdk-8-jdk
-
-      # Install SFDX scanner
-      - name: 'Installing SFDX scanner'
-        run: sfdx plugins:install @salesforce/sfdx-scanner
 
  
       - name: echo key
