@@ -22,23 +22,42 @@ jobs:
           tar xJf sfdx-cli-linux-x64.tar.xz -C sfdx-cli --strip-components 1
           sudo ./sfdx-cli/install
 # sfdx force:source:deploy --manifest=manifest/package.xml --testlevel=RunLocalTests -u kourim2570-v2az@force.com
+      - name: 'Installing sfdx git delta'
+        run: | 
+            echo y | sfdx plugins:install sfdx-git-delta
+            sfdx plugins 
+
+      # Install java
+      - name: 'Installing java'
+        run: sudo apt-get install openjdk-8-jdk
+
+      # Install SFDX scanner
+      - name: 'Installing SFDX scanner'
+        run: sfdx plugins:install @salesforce/sfdx-scanner
+
+ 
       - name: echo key
         run: echo "${{ secrets.SALESFORCE_SERVER_KEY }}" > server.key
         
       - name: Authenticate with Salesforce
         run: | 
-          sfdx force:auth:jwt:grant --clientid=${{ secrets.SALESFORCE_CONSUMER_KEY }} --jwtkeyfile=server.key --username=${{ secrets.SALESFORCE_USERNAME }} --setdefaultdevhubusername --setalias devjwt
+          sfdx force:auth:jwt:grant --clientid=${{ secrets.SALESFORCE_CONSUMER_KEY }}\
+          --jwtkeyfile=server.key --username=${{ secrets.SALESFORCE_USERNAME }} \
+          --setdefaultdevhubusername --setalias devjwt
           
 
        
 # force:source:deploy,--manifest,manifest/package.xml,--targetusername,DevHub_Instance,--wait,30,--json,--ignorewarnings,--testlevel,RunLocalTests
       - name: Deploy to Sandbox
         run: |
-          sfdx force:source:deploy -x manifest/package.xml --json --testlevel RunLocalTests --ignorewarnings -u ${{ secrets.SALESFORCE_USERNAME }}
+          sfdx force:source:deploy -x manifest/package.xml --json \
+          --testlevel RunLocalTests --ignorewarnings \
+          -u ${{ secrets.SALESFORCE_USERNAME }} 
+    
 
             # Trigger packaging workflow if needed
-      - name: 'Trigger packaging workflow if needed'
-        uses: peter-evans/repository-dispatch@v2
-        with:
-            event-type: start-packaging
-            client-payload: '{ "ref": "${{ github.ref }}", "sha": "${{ github.sha }}" }'
+     # - name: 'Trigger packaging workflow if needed'
+      #  uses: peter-evans/repository-dispatch@v2
+       # with:
+        #    event-type: start-packaging
+         #   client-payload: '{ "ref": "${{ github.ref }}", "sha": "${{ github.sha }}" }'
