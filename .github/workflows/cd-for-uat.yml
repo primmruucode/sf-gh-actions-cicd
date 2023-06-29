@@ -1,8 +1,10 @@
-name: Deploy to Sandbox
+name: Deploy to Sandbox UAT
 
 on:
   workflow_dispatch:
-
+  pull_request:
+    branches:
+      - UAT
 jobs:
   deploy:
     runs-on: ubuntu-latest
