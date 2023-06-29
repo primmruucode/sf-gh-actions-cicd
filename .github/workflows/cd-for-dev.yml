@@ -25,8 +25,17 @@ jobs:
           tar xJf sfdx-cli-linux-x64.tar.xz -C sfdx-cli --strip-components 1
           sudo ./sfdx-cli/install
 # sfdx force:source:deploy --manifest=manifest/package.xml --testlevel=RunLocalTests -u kourim2570-v2az@force.com
+      - name: 'Populate auth file with SFDX_URL secret of the integration and staging orgs'
+        shell: bash
+        run: |
+            echo ${{ secrets.SFDX_DEVHUB_URL}} > ./SFDX_DEVHUB_URL.txt
+      
+            # Authenticate to org
+      - name: 'Authenticate to Integration Org'
+        run: sfdx auth:sfdxurl:store -f ./SFDX_DEVHUB_URL.txt -s -a DevHub
 
- 
+            
+
       - name: echo key
         run: echo "${{ secrets.SALESFORCE_SERVER_KEY }}" > server.key
         
