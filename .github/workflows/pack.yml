@@ -1,0 +1,111 @@
+# Unique name for this workflow
+name: Packaging
+
+# Workflow starts when receiving custom event sent by CI workflow
+on:
+    repository_dispatch:
+        types: [start-packaging]
+
+# Jobs to be executed
+jobs:
+    release-package-version:
+        runs-on: trailheadapps-Ubuntu
+        steps:
+            # Install Salesforce CLI
+            - name: Install Salesforce CLI
+              run: |
+                  wget https://developer.salesforce.com/media/salesforce-cli/sfdx-cli/channels/stable/sfdx-cli-linux-x64.tar.xz
+                  mkdir sfdx-cli
+                  tar xJf sfdx-cli-linux-x64.tar.xz -C sfdx-cli --strip-components 1
+                  sudo ./sfdx-cli/install
+
+            # Checkout the source code
+            - name: 'Checkout source code'
+              uses: actions/checkout@v3
+              with:
+                  ref: ${{ github.event.client_payload.ref }}
+
+
+            - name: echo key
+              run: echo "${{ secrets.SALESFORCE_SERVER_KEY }}" > server.key
+
+            - name: Authenticate with Salesforce
+              run: | 
+                 sfdx force:auth:jwt:grant --clientid=${{ secrets.SALESFORCE_CONSUMER_KEY }} --jwtkeyfile=server.key --username=${{ secrets.SALESFORCE_USERNAME }} --setdefaultdevhubusername --setalias devjwt
+          
+
+            # Create package version and extract its id
+            - name: 'Create package version'
+              id: createPackageVersion
+              run: |
+                  set +e
+                  json=$(sf package version create -p DreamhouseLWC -x -w 20 -f config/project-scratch-def.json --json)
+                  echo $json
+                  status=$(echo $json | jq '.status')
+                  if [ $status == "0" ]; then
+                      packageVersionId=$(echo $json | jq -r '.result.SubscriberPackageVersionId')
+                      echo "packageVersionId=$packageVersionId" >> $GITHUB_OUTPUT
+                  else
+                      echo "Failed to create package version"
+                  fi
+                  exit $status
+
+            # Wait for package replication
+            - name: 'Wait for package replication'
+              uses: maddox/actions/sleep@master
+              with:
+                  args: 360
+
+            # Create scratch org
+            - name: 'Create scratch org'
+              run: sf org create scratch -f config/project-scratch-def.json -a scratch-org -d -y 1
+
+            # Install new package in scratch org
+            - name: 'Install new package version in scratch org'
+              run: sf package install -p ${{ steps.createPackageVersion.outputs.packageVersionId }} -w 10 -o scratch-org -r
+
+            # Update package install link in readme
+            - name: 'Update package install link in readme'
+              run: |
+                  packageVersionId="${{ steps.createPackageVersion.outputs.packageVersionId }}"
+                  packageLinkRegex="https:\/\/login\.salesforce\.com\/packaging\/installPackage\.apexp\?p0=[a-zA-ZA-ZA-Z0-9]{18}"
+                  newPackageLink="https://login.salesforce.com/packaging/installPackage.apexp?p0=${packageVersionId}"
+                  sed -E -i "s,${packageLinkRegex},${newPackageLink}," README.md
+
+            # Create PR for new package version
+            - name: 'Create PR for new package version'
+              id: create-pr
+              uses: peter-evans/create-pull-request@v4
+              with:
+                  title: 'Released new package version ${{ steps.createPackageVersion.outputs.packageVersionId }}'
+                  body: 'Released new package version ${{ steps.createPackageVersion.outputs.packageVersionId }}'
+                  author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
+                  commit-message: 'Released new package version ${{ steps.createPackageVersion.outputs.packageVersionId }}'
+                  branch: 'auto/release-package-version'
+                  token: ${{ secrets.BOT_ACCESS_TOKEN }}
+
+            # Approve pull request
+            - name: 'Approve pull request'
+              uses: juliangruber/approve-pull-request-action@v2
+              with:
+                  github-token: ${{ secrets.GITHUB_TOKEN }}
+                  number: ${{ steps.create-pr.outputs.pull-request-number }}
+
+            # Wait for CI to be skipped on pull request
+            - name: 'Wait for CI to be skipped on pull request'
+              uses: maddox/actions/sleep@master
+              with:
+                  args: 60
+
+            # Merge pull request
+            - name: 'Merge pull request'
+              uses: juliangruber/merge-pull-request-action@v1
+              with:
+                  github-token: ${{ secrets.GITHUB_TOKEN }}
+                  number: ${{ steps.create-pr.outputs.pull-request-number }}
+                  method: squash
+
+            # Housekeeping
+            - name: 'Delete scratch org'
+              if: always()
+              run: sf org delete scratch -p -o scratch-org
